@@ -3,6 +3,7 @@
 namespace robuust\stripe\gateways;
 
 use craft\commerce\models\payments\BasePaymentForm;
+use craft\commerce\models\Transaction;
 use craft\commerce\omnipay\base\OffsiteGateway;
 use craft\helpers\App;
 use DigiTickets\Stripe\CheckoutGateway as OmnipayGateway;
@@ -98,5 +99,16 @@ class Gateway extends OffsiteGateway
     protected function getGatewayClassName(): ?string
     {
         return '\\'.OmnipayGateway::class;
+    }
+
+    /**
+     * {@inheritdoc}
+     */
+    protected function createRequest(Transaction $transaction, BasePaymentForm $form = null): mixed
+    {
+        $request = parent::createRequest($transaction, $form);
+        $request['transactionReference'] = $transaction->reference;
+
+        return $request;
     }
 }
