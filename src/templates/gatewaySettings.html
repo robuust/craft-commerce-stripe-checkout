@@ -1,4 +1,4 @@
-{% from "_includes/forms" import autosuggestField %}
+{% from "_includes/forms" import autosuggestField, booleanMenuField %}
 
 {{ autosuggestField({
     label: 'Publishable key'|t('commerce'),
@@ -18,4 +18,13 @@
     value: gateway.secretKey,
     suggestEnvVars: true,
     errors: gateway.getErrors('secretKey')
+}) }}
+
+{{ booleanMenuField({
+    label: 'Send cart information to Stripe when making transactions?'|t('commerce'),
+    id: 'sendCartInfo',
+    name: 'sendCartInfo',
+    includeEnvVars: true,
+    errors: gateway.getErrors('sendCartInfo'),
+    value: gateway.getSendCartInfo(false)
 }) }}

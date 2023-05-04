@@ -62,20 +62,6 @@ class Gateway extends OffsiteGateway
     {
         parent::populateRequest($request, $paymentForm);
         $request['customerEmail'] = $request['order']->email;
-
-        $lineItems = [];
-        foreach ($request['order']->lineItems as $lineItem) {
-            $lineItems[] = [
-                'id' => $lineItem->sku,
-                'name' => $lineItem->description,
-                'description' => $lineItem->description,
-                'currency' => $request['order']->paymentCurrency,
-                'price' => $lineItem->onSale ? $lineItem->salePrice : $lineItem->price,
-                'quantity' => $lineItem->qty,
-            ];
-        }
-
-        $request['items'] = $lineItems;
     }
 
     /**
