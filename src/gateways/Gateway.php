@@ -5,8 +5,8 @@ namespace robuust\stripe\gateways;
 use craft\commerce\models\payments\BasePaymentForm;
 use craft\commerce\omnipay\base\OffsiteGateway;
 use craft\helpers\App;
+use DigiTickets\Stripe\CheckoutGateway as OmnipayGateway;
 use Omnipay\Common\AbstractGateway;
-use Omnipay\Payop\Gateway as OmnipayGateway;
 
 /**
  * Stripe Checkout gateway.
