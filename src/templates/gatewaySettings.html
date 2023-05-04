@@ -1,0 +1,21 @@
+{% from "_includes/forms" import autosuggestField %}
+
+{{ autosuggestField({
+    label: 'Publishable key'|t('commerce'),
+    id: 'publishableKey',
+    class: 'ltr',
+    name: 'publishableKey',
+    value: gateway.publishableKey,
+    suggestEnvVars: true,
+    errors: gateway.getErrors('publishableKey')
+}) }}
+
+{{ autosuggestField({
+    label: "Secret key"|t('commerce'),
+    id: 'secretKey',
+    class: 'ltr',
+    name: 'secretKey',
+    value: gateway.secretKey,
+    suggestEnvVars: true,
+    errors: gateway.getErrors('secretKey')
+}) }}

@@ -1,0 +1,56 @@
+{
+    "name": "robuust/craft-commerce-stripe-checkout",
+    "description": "Stripe Checkout integration for Craft Commerce",
+    "version": "1.0.0",
+    "type": "craft-plugin",
+    "keywords": [
+        "stripe",
+        "checkout",
+        "commerce",
+        "craftcms",
+        "omnipay",
+        "yii2"
+    ],
+    "license": "MIT",
+    "authors": [
+        {
+            "name": "Robuust",
+            "homepage": "https://robuust.digital/"
+        }
+    ],
+    "support": {
+        "email": "support@robuust.digital",
+        "issues": "https://github.com/robuust/craft-commerce-stripe-checkout/issues?state=open",
+        "source": "https://github.com/robuust/craft-commerce-stripe-checkout",
+        "docs": "https://github.com/robuust/craft-commerce-stripe-checkout",
+        "rss": "https://github.com/robuust/craft-commerce-stripe-checkout/commits/main.atom"
+    },
+    "repositories": [
+        {
+            "type": "vcs",
+            "url": "https://github.com/robuust/omnipay-stripe-checkout"
+        }
+    ],
+    "require": {
+        "craftcms/cms": "^4.0",
+        "craftcms/commerce": "^4.0",
+        "craftcms/commerce-omnipay": "^4.0",
+        "digitickets/omnipay-stripe-checkout": "dev-boboldehampsink-patch-1 as 3.1"
+    },
+    "autoload": {
+        "psr-4": {
+            "robuust\\stripe\\": "src/"
+        }
+    },
+    "extra": {
+        "name": "Stripe Checkout for Craft Commerce",
+        "handle": "commerce-stripe-checkout"
+    },
+    "config": {
+        "allow-plugins": {
+            "yiisoft/yii2-composer": true,
+            "craftcms/plugin-installer": true,
+            "php-http/discovery": true
+        }
+    }
+}
