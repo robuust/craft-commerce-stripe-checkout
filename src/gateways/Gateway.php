@@ -251,7 +251,6 @@ class Gateway extends OffsiteGateway
     protected function createRequest(Transaction $transaction, ?BasePaymentForm $form = null): mixed
     {
         $request = parent::createRequest($transaction, $form);
-        $request['transactionReference'] = $transaction->reference;
 
         // Add transaction hash to metadata for Payment Intent webhooks
         if (!isset($request['metadata'])) {
