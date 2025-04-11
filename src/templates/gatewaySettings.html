@@ -20,6 +20,17 @@
     errors: gateway.getErrors('secretKey')
 }) }}
 
+{{ autosuggestField({
+    label: "Webhook Signing Secret"|t('commerce'),
+    instructions: "Required for secure Stripe Payment Intent webhooks"|t('commerce'),
+    id: 'webhookSigningSecret',
+    class: 'ltr',
+    name: 'webhookSigningSecret',
+    value: gateway.webhookSigningSecret,
+    suggestEnvVars: true,
+    errors: gateway.getErrors('webhookSigningSecret')
+}) }}
+
 {{ booleanMenuField({
     label: 'Send cart information to Stripe when making transactions?'|t('commerce'),
     id: 'sendCartInfo',
