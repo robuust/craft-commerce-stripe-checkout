@@ -128,10 +128,10 @@ class Gateway extends OffsiteGateway
         }
 
         // Get the Payment Intent object
-        $paymentIntent = $event->data->object;
+        $paymentIntent = $event->data->object->toArray();
 
         // Extract the transaction hash from the metadata
-        $transactionHash = $paymentIntent->metadata->commerceTransactionHash;
+        $transactionHash = $paymentIntent['metadata']['commerceTransactionHash'];
 
         if (!$transactionHash) {
             Craft::warning('No transaction hash found in Payment Intent metadata', 'commerce');
@@ -176,7 +176,7 @@ class Gateway extends OffsiteGateway
 
             case 'payment_intent.payment_failed':
                 $childTransaction->status = TransactionRecord::STATUS_FAILED;
-                $childTransaction->message = $paymentIntent->last_payment_error->message ?? 'Payment failed';
+                $childTransaction->message = $paymentIntent['last_payment_error']['message'] ?? 'Payment failed';
                 break;
 
             case 'payment_intent.canceled':
@@ -198,8 +198,8 @@ class Gateway extends OffsiteGateway
         }
 
         $childTransaction->response = $paymentIntent;
-        $childTransaction->code = $paymentIntent->id;
-        $childTransaction->reference = $paymentIntent->id;
+        $childTransaction->code = $paymentIntent['id'];
+        $childTransaction->reference = $paymentIntent['id'];
 
         // Save the transaction
         Commerce::getInstance()->getTransactions()->saveTransaction($childTransaction);
