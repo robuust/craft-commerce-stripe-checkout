@@ -13,6 +13,7 @@ use craft\web\Response;
 use DigiTickets\Stripe\CheckoutGateway as OmnipayGateway;
 use Omnipay\Common\AbstractGateway;
 use Stripe\Exception\SignatureVerificationException;
+use Stripe\Exception\UnexpectedValueException;
 use Stripe\Stripe;
 use Stripe\Webhook;
 
@@ -109,7 +110,7 @@ class Gateway extends OffsiteGateway
                 $sigHeader,
                 App::parseEnv($this->webhookSigningSecret)
             );
-        } catch (\UnexpectedValueException $e) {
+        } catch (UnexpectedValueException $e) {
             Craft::warning('Invalid Stripe webhook payload: '.$e->getMessage(), 'commerce');
             $response->setStatusCode(400);
 
