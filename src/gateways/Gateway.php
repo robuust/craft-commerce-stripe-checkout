@@ -3,6 +3,7 @@
 namespace robuust\stripe\gateways;
 
 use Craft;
+use craft\commerce\base\RequestResponseInterface;
 use craft\commerce\models\payments\BasePaymentForm;
 use craft\commerce\models\Transaction;
 use craft\commerce\omnipay\base\OffsiteGateway;
@@ -72,10 +73,23 @@ class Gateway extends OffsiteGateway
     /**
      * {@inheritdoc}
      */
+    public function completePurchase(Transaction $transaction): RequestResponseInterface
+    {
+        $request = $this->createRequest($transaction);
+        $request['transactionReference'] = $transaction->reference;
+        $completeRequest = $this->prepareCompletePurchaseRequest($request);
+
+        return $this->performRequest($completeRequest, $transaction);
+    }
+
+    /**
+     * {@inheritdoc}
+     */
     public function populateRequest(array &$request, ?BasePaymentForm $paymentForm = null): void
     {
         parent::populateRequest($request, $paymentForm);
         $request['customerEmail'] = $request['order']->email;
+        $request['metadata']['commerceTransactionHash'] = $request['transactionId'];
     }
 
     /**
@@ -127,11 +141,19 @@ class Gateway extends OffsiteGateway
             return $response;
         }
 
+        // Verify this is a Payment Intent
+        if (!str_starts_with($event->type, 'payment_intent.')) {
+            Craft::info('Received Stripe webhook event: '.$event->type, 'commerce');
+            $response->setStatusCode(200);
+
+            return $response;
+        }
+
         // Get the Payment Intent object
         $paymentIntent = $event->data->object->toArray();
 
         // Extract the transaction hash from the metadata
-        $transactionHash = $paymentIntent['metadata']['commerceTransactionHash'];
+        $transactionHash = $paymentIntent['metadata']['commerceTransactionHash'] ?? null;
 
         if (!$transactionHash) {
             Craft::warning('No transaction hash found in Payment Intent metadata', 'commerce');
@@ -188,13 +210,6 @@ class Gateway extends OffsiteGateway
                 $childTransaction->status = TransactionRecord::STATUS_PENDING;
                 $childTransaction->message = 'Payment processing';
                 break;
-
-            default:
-                // For other event types, just log them but don't update transaction
-                Craft::info('Received Stripe webhook event: '.$event->type, 'commerce');
-                $response->setStatusCode(200);
-
-                return $response;
         }
 
         $childTransaction->response = $paymentIntent;
@@ -207,6 +222,38 @@ class Gateway extends OffsiteGateway
         $response->setStatusCode(200);
 
         return $response;
+    }
+
+    /**
+     * {@inheritdoc}
+     */
+    public function getTransactionHashFromWebhook(): ?string
+    {
+        $request = Craft::$app->getRequest();
+        $payload = $request->getRawBody();
+        $sigHeader = $request->getHeaders()->get('Stripe-Signature');
+
+        try {
+            // Verify the webhook signature
+            $event = Webhook::constructEvent(
+                $payload,
+                $sigHeader,
+                App::parseEnv($this->webhookSigningSecret)
+            );
+        } catch (\Exception $e) {
+            return null;
+        }
+
+        // Verify this is a Payment Intent
+        if (!str_starts_with($event->type, 'payment_intent.')) {
+            return null;
+        }
+
+        // Get the Payment Intent object
+        $paymentIntent = $event->data->object->toArray();
+
+        // Extract the transaction hash from the metadata
+        return $paymentIntent['metadata']['commerceTransactionHash'] ?? null;
     }
 
     /**
@@ -243,22 +290,5 @@ class Gateway extends OffsiteGateway
     protected function getGatewayClassName(): ?string
     {
         return '\\'.OmnipayGateway::class;
-    }
-
-    /**
-     * {@inheritdoc}
-     */
-    protected function createRequest(Transaction $transaction, ?BasePaymentForm $form = null): mixed
-    {
-        $request = parent::createRequest($transaction, $form);
-
-        // Add transaction hash to metadata for Payment Intent webhooks
-        if (!isset($request['metadata'])) {
-            $request['metadata'] = [];
-        }
-
-        $request['metadata']['commerceTransactionHash'] = $transaction->hash;
-
-        return $request;
     }
 }
