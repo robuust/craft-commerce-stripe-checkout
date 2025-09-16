@@ -101,6 +101,14 @@ class Gateway extends OffsiteGateway
     }
 
     /**
+     * {@inheritdoc}
+     */
+    public function supportsRefund(): bool
+    {
+        return false;
+    }
+
+    /**
      * @return Response
      *
      * @throws \Throwable
