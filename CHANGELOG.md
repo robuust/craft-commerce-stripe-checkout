@@ -1,3 +1,7 @@
+## 1.2.0 - 20-10-2025
+### Added
+- Added Craft 5 compatibility
+
 ## 1.1.1 - 16-09-2025
 ### Changed
 - Disabled refund support
